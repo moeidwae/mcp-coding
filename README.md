@@ -98,7 +98,9 @@ kemudian uji login GitHub serta satu operasi MCP dengan akun yang diizinkan.
 1. Cloudflare Dashboard — **Workers & Pages — D1 — Create database**
 2. Nama: `mcp-deploy` (harus sama persis dengan `database_name` di `wrangler.toml`)
 3. Copy **Database ID**, paste ke `wrangler.toml` menggantikan `REPLACE_WITH_AUDIT_DB_ID`
-4. Setelah deploy pertama (langkah 4 di bawah), jalankan migration:
+4. Migration (`migrations/*.sql`) dijalankan otomatis oleh GitHub Actions
+   (`.github/workflows/deploy.yml`, langkah **Apply D1 migrations**) sebelum setiap deploy.
+   Migration yang sudah pernah diterapkan dilewati. Untuk menjalankan manual:
    ```bash
    npx wrangler d1 migrations apply mcp-deploy --remote
    ```
