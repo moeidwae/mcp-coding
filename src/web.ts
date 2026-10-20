@@ -48,7 +48,7 @@ export async function fetchUrl(
       redirect: 'follow',
       signal: controller.signal,
       headers: {
-        'User-Agent': 'mcpnew-fetch/1.0 (+https://mcpnew.muidsoft.com)',
+        'User-Agent': 'mcp-deploy-fetch/1.0 (+https://mcp-deploy.moeidwae.workers.dev)',
         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,text/plain;q=0.8,*/*;q=0.5',
       },
     })

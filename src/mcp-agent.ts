@@ -130,7 +130,7 @@ export class MyMCP extends McpAgent<Env, unknown, GitHubProps> {
       inputSchema: {
         name: z.string().describe('Short key for the note'),
         content: z.string().describe('The note content. Can be multi-line.'),
-        tags: z.array(z.string()).optional().describe('Optional tags for grouping/filtering, e.g. ["mcpnew", "todo"]'),
+        tags: z.array(z.string()).optional().describe('Optional tags for grouping/filtering, e.g. ["mcp-deploy", "todo"]'),
       },
       annotations: { title: 'Set note', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     }, writeTool('set_note', ({ name }) => `Saved note ${name}`, async ({ name, content, tags }) => {

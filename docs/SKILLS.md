@@ -1,6 +1,6 @@
 # BYGA Skills in GitHub Ops MCP
 
-The `mcpnew` Worker supports two built-in Agent Skills imported in full from the owner's original ZIP packages:
+The `mcp-deploy` Worker supports two built-in Agent Skills imported in full from the owner's original ZIP packages:
 
 - `byga-coding-engineering`: coding, GitHub Actions / PR review, Cloudflare deployments, security and performance.
 - `byga-tiktok-creative-studio`: carousel, AI image/video prompts, UGC affiliate, drama and content QA.
@@ -28,7 +28,7 @@ Once this PR is merged, the Worker is deployed, and the MCP connector is reconne
 - `uninstall_skill(name, confirm)` removes a user-imported registration (not the source files). The `confirm` parameter must match the name exactly; built-in packages cannot be removed this way.
 - MCP prompt `use-skill(name, task?)` loads instructions as client-visible task guidance.
 
-Imported GitHub sources must be accessible through the user's GitHub OAuth token. The built-in `mcpnew` repo must be readable by that account (the repository is currently private). The tools use the Worker’s existing `OAUTH_KV` namespace and D1 audit logging for writes, with no additional database migration. If a skill is disabled, its instructions and reference files cannot be loaded.
+Imported GitHub sources must be accessible through the user's GitHub OAuth token. The built-in `mcp-coding` repo must be readable by that account (the repository is currently private). The tools use the Worker’s existing `OAUTH_KV` namespace and D1 audit logging for writes, with no additional database migration. If a skill is disabled, its instructions and reference files cannot be loaded.
 
 ## Security
 

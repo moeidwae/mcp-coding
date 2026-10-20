@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { build } from 'esbuild'
 import { beginTransaction, consumeTransaction, createSession, readSession, isAllowedUser, digest } from '../src/dashboard-auth.ts'
 
-const origin = 'https://mcpnew.muidsoft.com'
+const origin = 'https://mcp-deploy.moeidwae.workers.dev'
 const compiled = await build({ entryPoints: ['src/github-handler.ts'], bundle: true, platform: 'node', format: 'esm', write: false })
 const { GitHubHandler } = await import('data:text/javascript;base64,' + Buffer.from(compiled.outputFiles[0].text).toString('base64'))
 
@@ -13,7 +13,7 @@ function environment() {
   const auditBindings: unknown[][] = []
   const env = {
     GITHUB_CLIENT_ID: 'test-app', GITHUB_CLIENT_SECRET: 'test-secret', COOKIE_ENCRYPTION_KEY: 'a-test-only-encryption-secret',
-    GITHUB_ALLOWED_USERS: 'harvey-moeid', PROTECTED_BRANCHES: 'main,master', ALLOW_DIRECT_PUSH_TO_PROTECTED: 'true',
+    GITHUB_ALLOWED_USERS: 'moeidwae', PROTECTED_BRANCHES: 'main,master', ALLOW_DIRECT_PUSH_TO_PROTECTED: 'true',
     OAUTH_KV: {
       async put(key: string, value: string) { values.set(key, value) },
       async get(key: string) { return values.get(key) ?? null },
@@ -36,10 +36,10 @@ async function request(env: Env, path: string, options: RequestInit = {}) {
   return GitHubHandler.fetch(new Request(origin + path, options), env, {}) as Promise<Response>
 }
 async function authenticated(env: Env) {
-  return cookieHeader(await createSession(env, { login: 'harvey-moeid', name: 'Harvey', avatarUrl: 'https://avatars.githubusercontent.com/u/1', accessToken: 'private-test-token' }))
+  return cookieHeader(await createSession(env, { login: 'moeidwae', name: 'Harvey', avatarUrl: 'https://avatars.githubusercontent.com/u/1', accessToken: 'private-test-token' }))
 }
 
-function githubMock(t: import('node:test').TestContext, login = 'harvey-moeid') {
+function githubMock(t: import('node:test').TestContext, login = 'moeidwae') {
   return t.mock.method(globalThis, 'fetch', async (url: string | Request, _options?: RequestInit) => {
     const value = String(url)
     if (value.includes('/login/oauth/access_token')) return Response.json({ access_token: 'private-test-token' })
@@ -54,7 +54,7 @@ test('dashboard shell is public but every private API requires a session', async
   assert.equal(page.status, 200)
   assert.match(await page.text(), /Masuk dengan GitHub/)
   assert.match(page.headers.get('Content-Security-Policy')!, /frame-ancestors 'none'/)
-  for (const path of ['session', 'repositories', 'repository?repo=harvey-moeid/mcpnew', 'deployments', 'audit']) {
+  for (const path of ['session', 'repositories', 'repository?repo=moeidwae/mcp-coding', 'deployments', 'audit']) {
     assert.equal((await request(env, '/dashboard/api/' + path)).status, 401)
   }
 })
@@ -75,7 +75,7 @@ test('dashboard login is unavailable without an explicit allowlist', async () =>
   env.GITHUB_ALLOWED_USERS = ''
   assert.equal((await request(env, '/dashboard/login')).status, 503)
   assert.equal(isAllowedUser('anyone', '', true), false)
-  assert.equal(isAllowedUser('HARVEY-MOEID', 'harvey-moeid', true), true)
+  assert.equal(isAllowedUser('MOEIDWAE', 'moeidwae', true), true)
 })
 
 test('upstream OAuth state is opaque, browser bound and expires', async t => {
@@ -117,7 +117,7 @@ test('valid callback creates an encrypted session and clears transaction cookie'
   const publicData = await sessionResponse.text()
   assert.equal(sessionResponse.status, 200)
   assert.ok(!publicData.includes('private-test-token'))
-  assert.equal(JSON.parse(publicData).user.login, 'harvey-moeid')
+  assert.equal(JSON.parse(publicData).user.login, 'moeidwae')
   assert.equal((await request(env, '/callback?code=code&state=' + transaction.state, { headers })).status, 400)
   assert.equal(fetchMock.mock.callCount(), 2)
 })
@@ -135,10 +135,10 @@ test('expired or tampered sessions fail closed and allowlist changes revoke acce
   const { env, values } = environment()
   const sessionCookie = await authenticated(env)
   const browser = new Request(origin, { headers: { Cookie: sessionCookie } })
-  assert.equal((await readSession(env, browser))?.login, 'harvey-moeid')
+  assert.equal((await readSession(env, browser))?.login, 'moeidwae')
   env.GITHUB_ALLOWED_USERS = 'another-user'
   assert.equal(await readSession(env, browser), null)
-  env.GITHUB_ALLOWED_USERS = 'harvey-moeid'
+  env.GITHUB_ALLOWED_USERS = 'moeidwae'
   const otherCookie = await authenticated(env)
   const key = 'ops:session:' + await digest(otherCookie.split('=')[1])
   values.set(key, values.get(key)!.slice(0, -10) + 'garbage')
@@ -217,7 +217,7 @@ test('private audit queries bind the signed-in actor and validate pagination', a
   const { env, auditBindings } = environment()
   const headers = { Cookie: await authenticated(env) }
   assert.equal((await request(env, '/dashboard/api/audit?errors=true&before=42', { headers })).status, 200)
-  assert.deepEqual(auditBindings[0], ['harvey-moeid', 42])
+  assert.deepEqual(auditBindings[0], ['moeidwae', 42])
   assert.equal((await request(env, '/dashboard/api/audit?before=invalid', { headers })).status, 400)
   assert.equal((await request(env, '/dashboard/api/repository?repo=..%2F..', { headers })).status, 400)
   assert.equal((await request(env, '/dashboard/api/repositories?page=0', { headers })).status, 400)

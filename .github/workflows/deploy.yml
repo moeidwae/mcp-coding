@@ -10,7 +10,7 @@ on:
       - 'package-lock.json'
 
 concurrency:
-  group: deploy-github-mcp-server
+  group: deploy-mcp-deploy
   cancel-in-progress: false
 
 jobs:

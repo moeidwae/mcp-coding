@@ -17,7 +17,7 @@ ditempel di chat.
 
 ## Dashboard pribadi
 
-Buka **https://mcpnew.muidsoft.com/dashboard** atau halaman utama, kemudian pilih
+Buka **https://mcp-deploy.moeidwae.workers.dev/dashboard** atau halaman utama, kemudian pilih
 **Masuk dengan GitHub**. Dashboard menggunakan OAuth App dan callback `/callback`
 yang sama dengan konektor MCP; tidak diperlukan PAT atau callback tambahan.
 
@@ -27,7 +27,7 @@ yang sama dengan konektor MCP; tidak diperlukan PAT atau callback tambahan.
 - **Pull requests:** gabungan GitHub check runs dan commit statuses pada head PR;
   filter status, draft, dan tautan review langsung ke GitHub. Status tidak tersedia
   ditampilkan sebagai belum diketahui, bukan lolos.
-- **Deployment:** hingga 20 deployment Worker `github-mcp-server`, versi dan traffic rollout.
+- **Deployment:** hingga 20 deployment Worker `mcp-deploy`, versi dan traffic rollout.
 - **Aktivitas:** audit D1 milik akun yang masuk, pagination, dan filter error. Audit
   tetap best-effort sesuai perilaku tool MCP; daftar kosong bukan bukti tidak ada aksi.
 - **Koneksi & akses:** sesi, salin URL MCP, konfigurasi Cloudflare, dan status direct push.
@@ -82,8 +82,8 @@ kemudian uji login GitHub serta satu operasi MCP dengan akun yang diizinkan.
 1. Buka https://github.com/settings/developers — **OAuth Apps** — **New OAuth App**
 2. Isi:
    - **Application name**: `GitHub Ops MCP Server` (bebas)
-   - **Homepage URL**: `https://mcpnew.muidsoft.com`
-   - **Authorization callback URL**: `https://mcpnew.muidsoft.com/callback`
+   - **Homepage URL**: `https://mcp-deploy.moeidwae.workers.dev`
+   - **Authorization callback URL**: `https://mcp-deploy.moeidwae.workers.dev/callback`
      (sesuaikan domain dan `resourceMetadata.resource` jika menggunakan instalasi lain)
 3. Setelah dibuat, catat **Client ID**, lalu klik **Generate a new client secret** dan catat itu juga
 
@@ -96,11 +96,11 @@ kemudian uji login GitHub serta satu operasi MCP dengan akun yang diizinkan.
 
 **D1** (untuk audit log):
 1. Cloudflare Dashboard — **Workers & Pages — D1 — Create database**
-2. Nama: `github-mcp-audit-log` (harus sama persis dengan `database_name` di `wrangler.toml`)
+2. Nama: `mcp-deploy` (harus sama persis dengan `database_name` di `wrangler.toml`)
 3. Copy **Database ID**, paste ke `wrangler.toml` menggantikan `REPLACE_WITH_AUDIT_DB_ID`
 4. Setelah deploy pertama (langkah 4 di bawah), jalankan migration:
    ```bash
-   npx wrangler d1 migrations apply github-mcp-audit-log --remote
+   npx wrangler d1 migrations apply mcp-deploy --remote
    ```
 
 ### 3. Isi Secrets
@@ -145,7 +145,7 @@ npm install
 npm run deploy
 ```
 
-Setelah deploy, kamu akan dapat URL seperti `https://mcpnew.muidsoft.com`.
+Setelah deploy, kamu akan dapat URL seperti `https://mcp-deploy.moeidwae.workers.dev`.
 **Update callback URL di GitHub OAuth App** (langkah 1) kalau subdomain-nya beda dari perkiraan awal.
 
 ### 5. Connect ke Claude
@@ -153,7 +153,7 @@ Setelah deploy, kamu akan dapat URL seperti `https://mcpnew.muidsoft.com`.
 1. Buka **claude.ai — Customize — Connectors**
 2. Klik **+** — **Add custom connector**
 3. **Name**: `GitHub Ops`
-4. **URL**: `https://mcpnew.muidsoft.com/mcp`
+4. **URL**: `https://mcp-deploy.moeidwae.workers.dev/mcp`
 5. Klik **Add** — Claude akan otomatis melakukan Dynamic Client Registration ke endpoint `/register`
 6. Ikuti flow OAuth (redirect ke halaman consent server ini — lalu ke GitHub — approve)
 7. Selesai — di percakapan manapun, aktifkan connector "GitHub Ops" dan Claude bisa langsung push/buat repo
@@ -245,7 +245,7 @@ Setiap tool **write/destructive** (bukan read-only) otomatis tercatat ke databas
 Query manual:
 
 ```bash
-npx wrangler d1 execute github-mcp-audit-log --remote \
+npx wrangler d1 execute mcp-deploy --remote \
   --command "SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 20"
 ```
 
@@ -347,4 +347,4 @@ Validation uses mocked API responses and the registered tool handlers. A real-ac
 
 ## BYGA Agent Skills
 
-`mcpnew` supports the bundled `byga-coding-engineering` and `byga-tiktok-creative-studio` skill packages plus user-scoped GitHub imports. Available MCP tools: `list_skills`, `get_skill_instructions`, `read_skill_file`, `install_skill_from_github`, `set_skill_enabled`, and `uninstall_skill` (with confirmation). You can also invoke the `use-skill` MCP prompt where supported by the client. See [docs/SKILLS.md](docs/SKILLS.md) for setup, examples and security limitations.
+`mcp-deploy` supports the bundled `byga-coding-engineering` and `byga-tiktok-creative-studio` skill packages plus user-scoped GitHub imports. Available MCP tools: `list_skills`, `get_skill_instructions`, `read_skill_file`, `install_skill_from_github`, `set_skill_enabled`, and `uninstall_skill` (with confirmation). You can also invoke the `use-skill` MCP prompt where supported by the client. See [docs/SKILLS.md](docs/SKILLS.md) for setup, examples and security limitations.

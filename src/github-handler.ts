@@ -144,7 +144,7 @@ app.get('/callback', async (c) => {
   const userResponse = await fetch('https://api.github.com/user', {
     headers: {
       Authorization: `Bearer ${tokenBody.access_token}`,
-      'User-Agent': 'github-mcp-server',
+      'User-Agent': 'mcp-deploy',
       Accept: 'application/vnd.github+json',
     },
     signal: AbortSignal.timeout(15000),

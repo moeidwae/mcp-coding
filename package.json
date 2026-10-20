@@ -1,5 +1,5 @@
 {
-  "name": "github-mcp-server",
+  "name": "mcp-deploy",
   "version": "1.7.0",
   "private": true,
   "scripts": {
