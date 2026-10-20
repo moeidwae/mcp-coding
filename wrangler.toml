@@ -1,0 +1,52 @@
+name = "mcp-deploy"
+main = "src/index.ts"
+compatibility_date = "2026-08-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+# Durable Object that backs the MCP session (McpAgent).
+[[durable_objects.bindings]]
+name = "MCP_OBJECT"
+class_name = "MyMCP"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["MyMCP"]
+
+# KV namespace required by @cloudflare/workers-oauth-provider (must be named OAUTH_KV).
+[[kv_namespaces]]
+binding = "OAUTH_KV"
+id = "2775dc4b4ffa46e49f0bebe3e58115b2"
+
+# D1 database for the audit log (every write/destructive tool call is recorded here).
+[[d1_databases]]
+binding = "AUDIT_DB"
+database_name = "mcp-deploy"
+database_id = "0761168f-b120-44ac-812a-c8f4dd140743"
+migrations_dir = "migrations"
+
+[vars]
+# Comma-separated GitHub usernames allowed to use this server.
+# Hanya moeidwae yang diizinkan masuk.
+GITHUB_ALLOWED_USERS = "moeidwae"
+
+# Comma-separated branches that push_files/delete_file cannot write to directly.
+# Forces the create_branch -> push_files -> create_pull_request -> merge_pull_request flow.
+PROTECTED_BRANCHES = "main,master"
+
+# Set to "true" to disable the protected-branch guardrail (not recommended for shared repos).
+ALLOW_DIRECT_PUSH_TO_PROTECTED = "false"
+
+[observability]
+enabled = true
+
+# Secrets (set via `wrangler secret put`, never committed):
+#   GITHUB_CLIENT_ID
+#   GITHUB_CLIENT_SECRET
+#   COOKIE_ENCRYPTION_KEY
+#   CLOUDFLARE_API_TOKEN     <- used by get_worker_deployment_status + R2 tools (src/cloudflare.ts)
+#   CLOUDFLARE_ACCOUNT_ID    <- used by get_worker_deployment_status + R2 tools (src/cloudflare.ts)
+#   BRAVE_API_KEY            <- optional, used by web_search (src/web.ts); fetch_url needs no key
+
+# Last manual deploy trigger: 2026-09-02 (deps update + mojibake fix)
+# v2.0.0: updated all deps to latest (agents 0.22, MCP SDK 1.30, zod 4, wrangler 4.128)
